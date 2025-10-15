@@ -60,19 +60,31 @@
 
 <script setup>
 import { ref } from "vue"
-import { useRouter } from "#app"   // ✅ Nuxt way
+import { useRouter } from "#app"   //Nuxt way
 
 const username = ref("")
 const password = ref("")
 const errorMessage = ref("")
 const router = useRouter()
 
-const handleLogin = () => {
-  if (username.value === "collector" && password.value === "1234") {
-    errorMessage.value = "" // clear any previous error
-    router.push("/dashboard") // ✅ go to dashboard page
-  } else {
-    errorMessage.value = "Wrong Username or Password. Please try again."
-  }
-}
+  const handleLogin = async () => {
+    try {
+      const response = await $fetch("http://127.0.0.1:8000/api/login", {
+        method: "POST",
+        body: {
+          username: username.value,
+          password: password.value,
+        },
+      });
+
+      if (response.success) {
+        errorMessage.value = "";
+        router.push("/dashboard");
+      } else {
+        errorMessage.value = response.message;
+      }
+    } catch (error) {
+      errorMessage.value = "Cannot connect to server.";
+    }
+  };
 </script>
